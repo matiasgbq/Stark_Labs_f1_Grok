@@ -1,0 +1,68 @@
+name: Feature request
+about: Suggest a new feature or enhancement for the project.
+title: "Feature: ${{short_description}}"
+labels: ["type: feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an improvement! Please provide enough context so we can understand the request and decide whether to include it in the backlog.
+  - type: input
+    id: short_description
+    attributes:
+      label: Short description
+      placeholder: "e.g. Add dark mode to the UI"
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Full description
+      description: Describe the feature and how it should behave
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: List specific, testable conditions that must be true for this feature to be complete
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this matters
+      description: Short explanation of the value or user need
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - high
+        - medium
+        - low
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Effort (T-shirt size)
+      options:
+        - XS
+        - S
+        - M
+        - L
+        - XL
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / Component
+      options:
+        - frontend
+        - backend
+        - infra
+        - docs
+  - type: input
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Any other issues or PRs that block this feature (optional)
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Links, mockups, or references
