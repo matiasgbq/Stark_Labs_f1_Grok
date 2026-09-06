@@ -22,43 +22,38 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 
 ## Sprint actual
 
-- **Estado:** Plan propuesto; ejecución pendiente de autorización.
-- **Objetivo:** F1-TECH-02 — publicar desde el código fuente en Vercel sin alterar el juego ni el desarrollo local.
-- **Alcance:** una sola tarea, F1-TECH-02, conservando su prioridad P2, tamaño M y estado Pendiente. Seleccionada por el Product Owner como siguiente trabajo; no se reprioriza el resto del backlog.
-- **Capacidad:** Matías con una IA ejecutora, funciones DevOps/QA; un frente activo y tres cortes de revisión. Fechas y duración por confirmar, sin compromiso de horas o consumo estimado.
-- **Fuera de alcance:** gameplay, cerebros de rivales, controles, horizontal (F1-FUT-05), latencia (F1-UX-02), nuevas dependencias, autenticación, base de datos y otro sistema de CI.
-- **Criterio de salida:** build remoto verificable desde fuente, `/` y `/backlog` operativas en Preview y Production, sin regresiones desktop/móvil vertical y sin depender del output versionado. Un build local exitoso no cierra la tarea.
+- **Estado:** Planificado; ejecución pendiente de autorización.
+- **Objetivo:** Completar la cadena de vueltas, tiempos y rivales con Hamilton como tercer piloto.
+- **Alcance:** F1-NXT-01 → F1-NXT-02 → F1-NXT-03 → F1-RIV-01, en ese orden. No se reprioriza el resto del backlog.
+- **Capacidad:** Matías con una IA ejecutora, funciones Gameplay/Frontend/QA; un frente activo y tres cortes de revisión. Fechas y duración por confirmar.
+- **Fuera de alcance:** F1-TECH-02 (Vercel), F1-FUT-05 (horizontal), F1-UX-02 (latencia móvil), nuevos rivales distintos a Hamilton, física de neumáticos, DRS activo.
+- **Criterio de salida:** 3 vueltas completas con tiempos coherentes en HUD, clasificación en tiempo real con Hamilton (Ferrari #44), y sin regresiones en desktop/móvil vertical.
 
-### Instrucciones de ejecución — F1-TECH-02
+### Instrucciones de ejecución — Sprint vueltas y rivales
 
-**Responsable:** Matías + IA de código, funciones DevOps/QA. El Scrum Master mantiene este archivo; el Product Owner autoriza cambios y publicaciones. Estos pasos son instrucciones para una ejecución posterior, no acciones ya realizadas.
+**Responsable:** Matías + IA de código, funciones Gameplay/Frontend/QA. El Scrum Master mantiene este archivo; el Product Owner autoriza cambios y publicaciones.
 
-**Base local revisada para el plan (2026-09-06):** HEAD `47ea7f2`, rama `codex/track-clear-lap`; existen cambios previos en `BACKLOG.md`, el agente Scrum y `.vercel/output`, además de evidencia QA sin seguimiento. Preservarlos y acordar exactamente qué revisión se probará/publicará. `package.json` ya define `npm run build`; `vite.config.ts` ya usa Nitro con preset `vercel`. No hay `vercel.json` ni `.vercel/project.json` locales. Esto no confirma la configuración remota. Los estados de otras tareas se conservan sin recertificarlos en este planning.
+**Orden sugerido:** F1-NXT-01 → F1-NXT-02 → F1-NXT-03 → F1-RIV-01.
 
-1. **Diagnóstico acotado — solo lectura.**
-   - Confirmar en Vercel el proyecto y repositorio vinculados, rama de Production, Root Directory, framework, Node, comandos de instalación/build, Output Directory y mecanismo real de publicación. Revisar el último log de build y guardar la referencia del último deployment funcional y los ajustes que permitirían volver atrás.
-   - Identificar diferencias entre Preview y Production, protección de acceso y variables requeridas, sin copiar secretos. Comprobar si el flujo actual usa output preconstruido; no deducirlo solo por la carpeta versionada.
-   - Revisar las validaciones recientes de la revisión elegida. Hay siete tests de pista/sensores en `scripts/track-geometry.test.mjs` y un verdict histórico en `screenshots/qa-track/verdict.json`; no equivalen a validar la futura migración.
-   - **Entrega y parada:** configuración actual → cambio mínimo propuesto, archivos/ajustes afectados, riesgo y rollback. Si basta una configuración, no introducir refactors. Si faltan permisos o hay conflictos con cambios locales, informar el bloqueo; no reemplazar el proyecto ni modificar Production.
+1. **F1-NXT-01 — Vueltas (entrada por meta)**
+   - Contador de vueltas que incrementa al cruzar la línea de meta.
+   - Mostrar última vuelta, mejor vuelta y tiempo total en el HUD.
+   - Criterio: 3 vueltas incrementan el contador, tiempos coherentes (vuelta 1 > 0, mejor vuelta actualizable).
 
-2. **Cambio mínimo y prueba local — después de aprobar el diagnóstico.**
-   - Trabajar sobre una copia/rama aislada de la revisión acordada; no limpiar ni sobrescribir el árbol de trabajo actual. Mantener `npm run dev`, los puertos, el wrapper de entorno, Nitro, middleware y branding existentes.
-   - Proponer inicialmente configuración de despliegue (`vercel.json` solo si hace falta). Cambios en `package.json`, lockfile o `vite.config.ts` requieren justificar la necesidad antes de ampliar el alcance. `src/game/**` queda excluido.
-   - Verificar instalación reproducible con el lockfile y una versión de Node compatible con build y tests. Ejecutar tests y typecheck como baseline; luego un build y smoke del resultado para `/` y `/backlog`. Conservar registros y distinguir fallos previos de regresiones, sin ocultarlos ni arreglar tareas ajenas.
-   - Probar en un entorno aislado sin reutilizar `.vercel/output` previo: debe generarse desde la fuente. No ejecutar migraciones de base de datos ni introducir credenciales como parte de esta tarea; revisar primero el paso `db:migrate` que encadena el build existente.
-   - **Entrega y parada:** diff mínimo, comandos y resultados, evidencia visual desktop/móvil vertical, propuesta exacta de publicación. No hacer commit, push, PR o deploy sin autorización explícita.
+2. **F1-NXT-02 — State de carrera**
+   - Separar estado en fase (pre-carrera, en carrera, finalizada), progreso, vueltas, tiempos y clasificación.
+   - Criterio: admite 3+ vueltas sin reescribir el flujo principal; F1-NXT-01 sigue funcionando.
 
-3. **Preview, Production y cierre — con autorización de publicación.**
-   - Publicar primero la revisión acordada en Preview mediante el flujo confirmado. Registrar commit, URL y log que pruebe instalación/build remoto desde fuente; servir artefactos previamente preparados no cumple el objetivo.
-   - Validar ambas rutas por acceso directo y recarga, assets JS/CSS sin 404 ni MIME incorrecto, contenido visible, consola limpia y sin overflow. En desktop y móvil vertical, comprobar inicio, conducción, pausa/reanudación y reinicio. Verificar el joystick vertical y que `/backlog` corresponda al Markdown de esa revisión.
-   - **Parar para aceptación del Product Owner antes de Production.** Informar si la Preview requiere login; no desactivar protecciones sin permiso ni dar por verificada una prueba inaccesible.
-   - Publicar la revisión aceptada en Production solo con autorización; repetir los checks esenciales y comprobar que el enlace del juego sea compartible sin herramientas de desarrollo. Ante regresión, detener la promoción o aplicar el rollback previamente autorizado; no improvisar un arreglo de gameplay.
-   - Solo tras validar Preview y Production, proponer retirar del seguimiento Git exclusivamente `.vercel/output` y añadir la exclusión correspondiente. Preservar el deployment funcional y la recuperación; confirmar con un nuevo build/deploy desde fuente que la limpieza no rompe el flujo. La limpieza/publicación también requiere autorización.
-   - **Cierre:** registrar revisión, URLs, resultados, ajustes efectivos y procedimiento de retorno en este backlog; pasar F1-TECH-02 a Terminado únicamente cuando se cumplan todos sus criterios.
+3. **F1-NXT-03 — Rivales con comportamiento reproducibles**
+   - Rivales (Verstappen, Piastri) con progreso, posición, diferencia y datos coherentes en HUD/clasificación.
+   - Criterio: clasificación refleja posiciones reales; sin comportamiento errático.
 
-**Eficiencia:** reutilizar el pipeline existente si resulta apto; una IA ejecutora y revisiones en cada corte, sin agentes paralelos para pasos dependientes ni nueva automatización. No repetir exploraciones completas; usar el diagnóstico como handoff. Repetir pruebas solo ante cambios que invaliden su evidencia. Si aparecen problemas estructurales, detenerse y ajustar el plan con el Product Owner.
+4. **F1-RIV-01 — Hamilton (Ferrari #44)**
+   - Tercer rival con personalidad: conducción conservadora (95% trazada ideal), agresividad 0.4, bloqueo predictivo, modo caza (0.7 + 3% potencia en DRS), consistencia ±0.050s, tiempos base (VER 1:15.000, HAM 1:15.300, PIA 1:15.700).
+   - Datos: `hud="HAM"`, `team="Ferrari"`, `number=44`, `color_ui="#EF1A2D"`.
+   - Criterio: Hamilton aparece en la clasificación, respeta su personalidad documentada, no colisiona limpiamente con el jugador.
 
-**Siguiente acción propuesta:** autorizar únicamente el corte 1 (diagnóstico de Vercel de solo lectura). F1-TECH-02 continúa Pendiente; este planning no autoriza su ejecución.
+**Siguiente acción propuesta:** autorizar el sprint y comenzar con F1-NXT-01.
 
 ## MVP
 
@@ -110,6 +105,12 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 | F1-NXT-03 | Historia | P1 | Gameplay | M | F1-NXT-02 | Por hacer | Rivales con progreso, posición, diferencia y comportamiento reproducibles; datos coherentes en HUD y resultado. |
 | F1-NXT-04 | Historia | P1 | Frontend + Gameplay | S | F1-NXT-01 | Por hacer | Pausa detiene simulación y audio; resultado muestra clasificación, tiempos y acciones para repetir o volver. |
 | F1-NXT-05 | Tarea técnica | P1 | QA | S | F1-MVP-03, F1-NXT-01 | Por hacer | Matriz de teclado, táctil, foco, pausa, reinicio, límites y tres vueltas en desktop y móvil. |
+
+## Rivales
+
+| ID | Tipo | Prioridad | Responsable | Tamaño | Dependencias | Estado | Criterios de aceptación |
+|---|---|---|---|---|---|---|---|
+| F1-RIV-01 | Historia | P0 | Gameplay | M | F1-NXT-03 | Por hacer | Hamilton (Ferrari #44) como tercer rival con personalidad propia: conducción conservadora y precisa (95% trazada ideal), agresividad base 0.4, lógica de bloqueo predictivo (cubre interior 1s antes ante sobrepaso), multiplicador de estrés (2% microerror si jugador a <0.5s por 2+ vueltas), modo "caza" con agresividad 0.7 y +3% potencia cuando está detrás en zona DRS. Tiempos base: Verstappen 1:15.000, Hamilton 1:15.300, Piastri 1:15.700. Consistencia: variación Hamilton +/-0.050s (máquina), Piastri +/-0.200s. Datos JSON: `hud="HAM"`, `team="Ferrari"`, `number=44`, `color_ui="#EF1A2D"`. |
 
 ## Futuro
 
