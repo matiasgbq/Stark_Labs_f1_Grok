@@ -12,21 +12,17 @@ const CONTROL: [number, number][] = [
   [200, -245],
   [225, -175],
   [210, -115],
-  [175, -85],
+  [195, -85],
   [210, -45],
   [250, 10],
   [270, 90],
   [255, 165],
   [195, 205],
   [125, 210],
-  [60, 180],
-  [15, 135],
-  [-30, 95],
-  [-70, 40],
-  [-85, -25],
-  [-70, -85],
-  [-30, -55],
-  [-8, 10],
+  // Return to the main straight from the south, with room for both edges.
+  [60, 200],
+  [15, 165],
+  [0, 120],
 ];
 
 export type Sample = {
@@ -247,6 +243,21 @@ export function barrierPosts(): THREE.Matrix4[] {
   return mats;
 }
 
+/** Global clearance: an offset from one section can land on another section. */
+export function distanceToTrack(x: number, z: number): number {
+  let best = Infinity;
+  for (let i = 0; i < SAMPLES.length; i++) {
+    const a = SAMPLES[i];
+    const b = SAMPLES[(i + 1) % SAMPLES.length];
+    const dx = b.x - a.x;
+    const dz = b.z - a.z;
+    const lengthSq = dx * dx + dz * dz;
+    const t = lengthSq ? Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / lengthSq)) : 0;
+    best = Math.min(best, Math.hypot(x - a.x - t * dx, z - a.z - t * dz));
+  }
+  return best;
+}
+
 export function scatterOutside(count: number, minR: number, maxR: number, seed = 1) {
   const pts: { x: number; z: number; y: number; rot: number; s: number }[] = [];
   let r = seed;
@@ -254,17 +265,19 @@ export function scatterOutside(count: number, minR: number, maxR: number, seed =
     r = (r * 16807) % 2147483647;
     return (r - 1) / 2147483646;
   };
-  for (let i = 0; i < count; i++) {
+  for (let attempt = 0; pts.length < count && attempt < count * 20; attempt++) {
     const s = SAMPLES[Math.floor(rand() * SAMPLES.length)];
     const sign = rand() > 0.5 ? 1 : -1;
     const off = minR + rand() * (maxR - minR);
-    pts.push({
+    const p = {
       x: s.x + s.nx * sign * off,
       z: s.z + s.nz * sign * off,
       y: 0,
       rot: rand() * Math.PI * 2,
       s: 0.75 + rand() * 0.7,
-    });
+    };
+    // Largest tree canopy is 2.03 m wide from its centre; leave extra room.
+    if (distanceToTrack(p.x, p.z) > TRACK_HALF + 3) pts.push(p);
   }
   return pts;
 }
