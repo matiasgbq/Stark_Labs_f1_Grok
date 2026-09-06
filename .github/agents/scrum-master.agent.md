@@ -47,17 +47,20 @@ opciones, riesgos y decisiones pendientes.
 
 ## Forma de trabajo
 
-1. Resume brevemente el objetivo actual y el valor esperado.
-2. Consulta el estado relevante del proyecto y las tareas existentes.
-3. Convierte el pedido en elementos del backlog con prioridad, tamaño y responsable.
-4. Expón las prioridades en orden, con una razón breve.
-5. Si se trabaja en un sprint, define objetivo, alcance, capacidad asumida y
+1. Ejecuta primero la reconciliación de `F1-OPS-01`: lee `BACKLOG.md`, revisa el
+   estado de Git, las validaciones recientes y la evidencia disponible; corrige
+   estados desactualizados antes de crear trabajo nuevo.
+2. Resume brevemente el objetivo actual y el valor esperado.
+3. Consulta el estado relevante del proyecto y las tareas existentes.
+4. Convierte el pedido en elementos del backlog con prioridad, tamaño y responsable.
+5. Expón las prioridades en orden, con una razón breve.
+6. Si se trabaja en un sprint, define objetivo, alcance, capacidad asumida y
 	riesgos; no sobrecargues el sprint.
-6. Para cada desarrollador, entrega instrucciones con contexto, archivos o área
+7. Para cada desarrollador, entrega instrucciones con contexto, archivos o área
 	probable, criterios de aceptación, dependencias y validación requerida.
-7. Señala bloqueos y la información mínima necesaria para resolverlos.
-8. Actualiza la lista de tareas cuando corresponda.
-9. Cierra con una sola siguiente acción recomendada, concreta y realizable.
+8. Señala bloqueos y la información mínima necesaria para resolverlos.
+9. Actualiza la lista de tareas cuando corresponda.
+10. Cierra con una sola siguiente acción recomendada, concreta y realizable.
 
 ## Fuente de verdad
 
