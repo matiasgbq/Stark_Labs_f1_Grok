@@ -1,9 +1,10 @@
-import { i as __toESM } from "../_runtime.mjs";
+import { i as __toESM, n as __exportAll } from "../_runtime.mjs";
 import { g as require_react, h as require_jsx_runtime } from "../_libs/@react-three/fiber+[...].mjs";
-import { _ as useRouter, f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent } from "../_libs/@tanstack/react-router+[...].mjs";
+import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, v as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { t as TriangleAlert } from "../_libs/lucide-react.mjs";
 import { a as union, i as string, n as number, r as object, t as literal } from "../_libs/zod.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-8Xa8bR0R.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-BLcmolDs.js
+var router_BLcmolDs_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function AppErrorComponent({ error }) {
@@ -272,9 +273,9 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-Cil6fUSQ.css";
+var styles_default = "/assets/styles-BqWcmwJm.css";
 var APP_NAME = "STARK F1";
-var Route$1 = createRootRoute({
+var Route$2 = createRootRoute({
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
@@ -326,16 +327,26 @@ var Route$1 = createRootRoute({
 		})]
 	})
 });
-var $$splitComponentImporter = () => import("./routes-CXIQm2Rw.mjs");
-var rootRouteChildren = { IndexRoute: createFileRoute("/")({
+var $$splitComponentImporter$1 = () => import("./routes-DSPQ7PrB.mjs");
+var Route$1 = createFileRoute("/")({
 	ssr: false,
-	component: lazyRouteComponent($$splitComponentImporter, "component")
-}).update({
-	id: "/",
-	path: "/",
-	getParentRoute: () => Route$1
-}) };
-var routeTree = Route$1._addFileChildren(rootRouteChildren)._addFileTypes();
+	component: lazyRouteComponent($$splitComponentImporter$1, "component")
+});
+var $$splitComponentImporter = () => import("./backlog-CI9okOuH.mjs");
+var Route = createFileRoute("/backlog")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
+var rootRouteChildren = {
+	IndexRoute: Route$1.update({
+		id: "/",
+		path: "/",
+		getParentRoute: () => Route$2
+	}),
+	BacklogRoute: Route.update({
+		id: "/backlog",
+		path: "/backlog",
+		getParentRoute: () => Route$2
+	})
+};
+var routeTree = Route$2._addFileChildren(rootRouteChildren)._addFileTypes();
 function getRouter() {
 	return createRouter({
 		routeTree,
@@ -343,4 +354,4 @@ function getRouter() {
 	});
 }
 //#endregion
-export { getRouter };
+export { getRouter, router_BLcmolDs_exports as t };

@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { Pause as PauseIcon, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { unlockAudio } from "./audio";
@@ -61,9 +62,11 @@ export function Game() {
       {(phase === "racing" || phase === "paused") && (
         <button
           type="button"
-          className="absolute right-4 top-4 z-20 hidden h-11 rounded-[10px] border border-border bg-asphalt/70 px-4 text-sm text-fg backdrop-blur-sm sm:block"
+          aria-label={phase === "paused" ? "Resume race" : "Pause race"}
+          className="absolute right-4 top-28 z-20 flex h-10 items-center gap-2 rounded-[10px] border border-border bg-asphalt/70 px-3 text-sm text-fg backdrop-blur-sm sm:top-4 sm:h-11 sm:px-4"
           onClick={() => setPhase(phase === "paused" ? "racing" : "paused")}
         >
+          {phase === "paused" ? <Play className="size-4" /> : <PauseIcon className="size-4" />}
           {phase === "paused" ? "Resume" : "Pause"}
         </button>
       )}
@@ -179,62 +182,60 @@ function Finish() {
 
 function TouchPad() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-between p-4 sm:hidden">
-      <div className="pointer-events-auto flex flex-col gap-2">
-        <HoldButton label="Brake" onHold={(v) => setTouchThrottle(v ? -1 : 0)} />
-        <HoldButton label="Throttle" accent onHold={(v) => setTouchThrottle(v ? 1 : 0)} />
-      </div>
-      <SteerStick />
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-end p-4 sm:hidden">
+      <VirtualJoystick />
     </div>
   );
 }
 
-function HoldButton({
-  label,
-  onHold,
-  accent,
-}: {
-  label: string;
-  onHold: (down: boolean) => void;
-  accent?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      className={`h-14 min-w-[108px] rounded-[16px] border border-border px-4 text-sm font-medium backdrop-blur-sm ${
-        accent ? "bg-alpine/90 text-asphalt" : "bg-asphalt/70 text-fg"
-      }`}
-      onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        onHold(true);
-      }}
-      onPointerUp={() => onHold(false)}
-      onPointerCancel={() => onHold(false)}
-    >
-      {label}
-    </button>
-  );
-}
+function VirtualJoystick() {
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const activePointer = useRef<number | null>(null);
+  const radius = 58;
 
-function SteerStick() {
-  const origin = useRef(0);
+  const updateFromPointer = (clientX: number, clientY: number, rect: DOMRect) => {
+    const dx = clientX - (rect.left + rect.width / 2);
+    const dy = clientY - (rect.top + rect.height / 2);
+    const distance = Math.hypot(dx, dy);
+    const scale = distance > radius ? radius / distance : 1;
+    const x = dx * scale;
+    const y = dy * scale;
+    setOffset({ x, y });
+    setTouchSteer(Math.max(-1, Math.min(1, -x / radius)));
+    setTouchThrottle(Math.max(-1, Math.min(1, -y / radius)));
+  };
+
+  const release = () => {
+    activePointer.current = null;
+    setOffset({ x: 0, y: 0 });
+    setTouchSteer(0);
+    setTouchThrottle(0);
+  };
+
   return (
     <div
-      className="pointer-events-auto flex h-[120px] w-[148px] items-center justify-center rounded-[24px] border border-border bg-asphalt/70 text-xs uppercase tracking-wider text-muted backdrop-blur-sm"
+      role="application"
+      aria-label="Virtual driving joystick"
+      className="pointer-events-auto flex h-[152px] w-[152px] touch-none items-center justify-center rounded-full border border-border bg-asphalt/75 backdrop-blur-sm"
       onPointerDown={(e) => {
         e.currentTarget.setPointerCapture(e.pointerId);
-        origin.current = e.clientX;
+        activePointer.current = e.pointerId;
+        updateFromPointer(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
       }}
       onPointerMove={(e) => {
-        if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-        const dx = e.clientX - origin.current;
-        // A is left = +steer. Finger left should steer left.
-        setTouchSteer(Math.max(-1, Math.min(1, -dx / 64)));
+        if (activePointer.current !== e.pointerId) return;
+        updateFromPointer(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
       }}
-      onPointerUp={() => setTouchSteer(0)}
-      onPointerCancel={() => setTouchSteer(0)}
+      onPointerUp={release}
+      onPointerCancel={release}
     >
-      Steer
+      <div className="pointer-events-none absolute text-[9px] font-semibold uppercase tracking-[0.18em] text-muted">
+        Drive
+      </div>
+      <div
+        className="pointer-events-none h-14 w-14 rounded-full border-2 border-alpine bg-alpine/90 shadow-[0_0_24px_rgba(61,180,255,0.45)] transition-transform duration-75"
+        style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}
+      />
     </div>
   );
 }

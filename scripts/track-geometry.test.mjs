@@ -14,6 +14,7 @@ registerHooks({
 
 const { SAMPLES, TRACK_LENGTH, barrierPosts, scatterOutside } = await import("../src/game/track.ts");
 const { TRACK_HALF, BARRIER } = await import("../src/game/constants.ts");
+const { readTrackSensors } = await import("../src/game/sensors.ts");
 const center = SAMPLES.map(({ x, z }) => [x, z]);
 const EPSILON = 1e-8;
 const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
@@ -151,4 +152,35 @@ test("the player can drive two complete circuits with both rivals present", asyn
     setTouchThrottle(0);
     resetWorld();
   }
+});
+
+test("track sensors describe center, upcoming curve, and off-track clearance", () => {
+  const progress = 0.25;
+  const sample = SAMPLES[Math.floor(SAMPLES.length * progress)];
+  const center = readTrackSensors({
+    x: sample.x,
+    z: sample.z,
+    yaw: sample.yaw,
+    speed: 32,
+    progress,
+    hint: Math.floor(SAMPLES.length * progress),
+  });
+  assert.ok(Math.abs(center.lateralOffset) < 0.01);
+  assert.equal(center.offTrack, false);
+  assert.equal(center.leftClearance, TRACK_HALF);
+  assert.equal(center.rightClearance, TRACK_HALF);
+  assert.equal(center.probes.length, 4);
+  assert.ok(["left", "right", "straight"].includes(center.curveDirection));
+  assert.ok(center.probes.some((probe) => Math.abs(probe.curve) > 0));
+
+  const outside = readTrackSensors({
+    x: sample.x + sample.nx * (TRACK_HALF + 2),
+    z: sample.z + sample.nz * (TRACK_HALF + 2),
+    yaw: sample.yaw,
+    speed: 12,
+    progress,
+    hint: Math.floor(SAMPLES.length * progress),
+  });
+  assert.equal(outside.offTrack, true);
+  assert.ok(outside.leftClearance < 0 || outside.rightClearance < 0);
 });
