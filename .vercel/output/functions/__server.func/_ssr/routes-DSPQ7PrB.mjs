@@ -1,9 +1,10 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { a as BoxGeometry, c as CylinderGeometry, d as MeshStandardMaterial, f as Object3D, g as require_react, h as require_jsx_runtime, l as Float32BufferAttribute, n as useFrame, o as BufferGeometry, p as Vector3, r as useThree, s as ConeGeometry, t as Canvas, u as MathUtils } from "../_libs/@react-three/fiber+[...].mjs";
+import { a as Pause, i as Play } from "../_libs/lucide-react.mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { t as create } from "../_libs/zustand.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CXIQm2Rw.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-DSPQ7PrB.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -478,6 +479,55 @@ function readActions() {
 		boost
 	};
 }
+var PROBE_DISTANCES = [
+	8,
+	18,
+	32,
+	50
+];
+var HEADING_LOOKAHEAD = 10;
+var HEADING_SCALE = Math.PI * 2;
+function wrapAngle(angle) {
+	while (angle > Math.PI) angle -= HEADING_SCALE;
+	while (angle < -Math.PI) angle += HEADING_SCALE;
+	return angle;
+}
+function headingError(vehicle, progress) {
+	return wrapAngle(sampleAt(progress).yaw - vehicle.yaw);
+}
+function signedCenterOffset(vehicle, progress) {
+	const target = sampleAt(progress);
+	return (vehicle.x - target.x) * target.nx + (vehicle.z - target.z) * target.nz;
+}
+function readTrackSensors(vehicle) {
+	const current = closest(vehicle.x, vehicle.z, vehicle.hint ?? 0);
+	const lateralOffset = current.lat;
+	const probes = PROBE_DISTANCES.map((distance) => {
+		const progress = (vehicle.progress + distance / TRACK_LENGTH) % 1;
+		const curve = wrapAngle(sampleAt(progress).yaw - current.sample.yaw);
+		return {
+			distance,
+			centerOffset: signedCenterOffset(vehicle, progress),
+			headingError: headingError(vehicle, progress),
+			curve
+		};
+	});
+	const nearCurve = probes[1]?.curve ?? 0;
+	const curveStrength = Math.min(1, Math.abs(nearCurve) / .8);
+	return {
+		speed: Math.abs(vehicle.speed),
+		normalizedSpeed: Math.min(1, Math.abs(vehicle.speed) / 64),
+		progress: vehicle.progress,
+		lateralOffset,
+		leftClearance: TRACK_HALF + lateralOffset,
+		rightClearance: TRACK_HALF - lateralOffset,
+		offTrack: Math.abs(lateralOffset) > TRACK_HALF,
+		headingError: headingError(vehicle, vehicle.progress + HEADING_LOOKAHEAD / TRACK_LENGTH),
+		curveDirection: Math.abs(nearCurve) < .08 ? "straight" : nearCurve > 0 ? "left" : "right",
+		curveStrength,
+		probes
+	};
+}
 var empty = {
 	phase: "menu",
 	countdown: 3,
@@ -828,6 +878,14 @@ function attachControlsProbe() {
 			setKeys(codes);
 		}
 	};
+	w.__raceSensors = {
+		getPlayer: () => readTrackSensors(world.player),
+		getAll: () => ({
+			player: readTrackSensors(world.player),
+			max: readTrackSensors(world.max),
+			oscar: readTrackSensors(world.oscar)
+		})
+	};
 }
 function fmt(t) {
 	if (!t || !isFinite(t)) return "—";
@@ -1048,7 +1106,7 @@ function Minimap() {
 		ref,
 		width: 168,
 		height: 132,
-		className: "rounded-[16px] opacity-90",
+		className: "relative rounded-[16px] opacity-90 max-sm:-translate-y-36",
 		"aria-hidden": true
 	});
 }
@@ -1839,14 +1897,15 @@ function Game() {
 			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "absolute inset-0 bg-asphalt" }),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Hud, {}),
 			phase === "menu" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, { onStart: begin }),
-			phase === "paused" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pause, {}),
+			phase === "paused" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pause$1, {}),
 			phase === "finish" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Finish, {}),
 			(phase === "racing" || phase === "countdown") && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TouchPad, {}),
-			(phase === "racing" || phase === "paused") && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+			(phase === "racing" || phase === "paused") && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 				type: "button",
-				className: "absolute right-4 top-4 z-20 hidden h-11 rounded-[10px] border border-border bg-asphalt/70 px-4 text-sm text-fg backdrop-blur-sm sm:block",
+				"aria-label": phase === "paused" ? "Resume race" : "Pause race",
+				className: "absolute right-4 top-28 z-20 flex h-10 items-center gap-2 rounded-[10px] border border-border bg-asphalt/70 px-3 text-sm text-fg backdrop-blur-sm sm:top-4 sm:h-11 sm:px-4",
 				onClick: () => setPhase(phase === "paused" ? "racing" : "paused"),
-				children: phase === "paused" ? "Resume" : "Pause"
+				children: [phase === "paused" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Play, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pause, { className: "size-4" }), phase === "paused" ? "Resume" : "Pause"]
 			})
 		]
 	});
@@ -1912,7 +1971,7 @@ function Menu({ onStart }) {
 		})
 	});
 }
-function Pause() {
+function Pause$1() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "absolute inset-0 z-30 flex items-center justify-center bg-asphalt/50 px-5",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -2008,50 +2067,63 @@ function Finish() {
 	});
 }
 function TouchPad() {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-between p-4 sm:hidden",
-		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "pointer-events-auto flex flex-col gap-2",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(HoldButton, {
-				label: "Brake",
-				onHold: (v) => setTouchThrottle(v ? -1 : 0)
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HoldButton, {
-				label: "Throttle",
-				accent: true,
-				onHold: (v) => setTouchThrottle(v ? 1 : 0)
-			})]
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SteerStick, {})]
-	});
-}
-function HoldButton({ label, onHold, accent }) {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-		type: "button",
-		className: `h-14 min-w-[108px] rounded-[16px] border border-border px-4 text-sm font-medium backdrop-blur-sm ${accent ? "bg-alpine/90 text-asphalt" : "bg-asphalt/70 text-fg"}`,
-		onPointerDown: (e) => {
-			e.currentTarget.setPointerCapture(e.pointerId);
-			onHold(true);
-		},
-		onPointerUp: () => onHold(false),
-		onPointerCancel: () => onHold(false),
-		children: label
-	});
-}
-function SteerStick() {
-	const origin = (0, import_react.useRef)(0);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		className: "pointer-events-auto flex h-[120px] w-[148px] items-center justify-center rounded-[24px] border border-border bg-asphalt/70 text-xs uppercase tracking-wider text-muted backdrop-blur-sm",
+		className: "pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-end p-4 sm:hidden",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VirtualJoystick, {})
+	});
+}
+function VirtualJoystick() {
+	const [offset, setOffset] = (0, import_react.useState)({
+		x: 0,
+		y: 0
+	});
+	const activePointer = (0, import_react.useRef)(null);
+	const radius = 58;
+	const updateFromPointer = (clientX, clientY, rect) => {
+		const dx = clientX - (rect.left + rect.width / 2);
+		const dy = clientY - (rect.top + rect.height / 2);
+		const distance = Math.hypot(dx, dy);
+		const scale = distance > radius ? radius / distance : 1;
+		const x = dx * scale;
+		const y = dy * scale;
+		setOffset({
+			x,
+			y
+		});
+		setTouchSteer(Math.max(-1, Math.min(1, -x / radius)));
+		setTouchThrottle(Math.max(-1, Math.min(1, -y / radius)));
+	};
+	const release = () => {
+		activePointer.current = null;
+		setOffset({
+			x: 0,
+			y: 0
+		});
+		setTouchSteer(0);
+		setTouchThrottle(0);
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		role: "application",
+		"aria-label": "Virtual driving joystick",
+		className: "pointer-events-auto flex h-[152px] w-[152px] touch-none items-center justify-center rounded-full border border-border bg-asphalt/75 backdrop-blur-sm",
 		onPointerDown: (e) => {
 			e.currentTarget.setPointerCapture(e.pointerId);
-			origin.current = e.clientX;
+			activePointer.current = e.pointerId;
+			updateFromPointer(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
 		},
 		onPointerMove: (e) => {
-			if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-			const dx = e.clientX - origin.current;
-			setTouchSteer(Math.max(-1, Math.min(1, -dx / 64)));
+			if (activePointer.current !== e.pointerId) return;
+			updateFromPointer(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
 		},
-		onPointerUp: () => setTouchSteer(0),
-		onPointerCancel: () => setTouchSteer(0),
-		children: "Steer"
+		onPointerUp: release,
+		onPointerCancel: release,
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "pointer-events-none absolute text-[9px] font-semibold uppercase tracking-[0.18em] text-muted",
+			children: "Drive"
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "pointer-events-none h-14 w-14 rounded-full border-2 border-alpine bg-alpine/90 shadow-[0_0_24px_rgba(61,180,255,0.45)] transition-transform duration-75",
+			style: { transform: `translate(${offset.x}px, ${offset.y}px)` }
+		})]
 	});
 }
 function Home() {

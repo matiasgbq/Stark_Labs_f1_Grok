@@ -172,7 +172,7 @@ function Minimap() {
       ref={ref}
       width={168}
       height={132}
-      className="rounded-[16px] opacity-90"
+      className="relative rounded-[16px] opacity-90 max-sm:-translate-y-36"
       aria-hidden
     />
   );

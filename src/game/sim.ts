@@ -13,6 +13,7 @@ import {
 } from "./constants";
 import { readActions, setKeys } from "./input";
 import { closest, CP_AT, place, sampleAt, TRACK_LENGTH, type Sample } from "./track";
+import { readTrackSensors, type TrackSensors } from "./sensors";
 import { chirpCountdown, finishFanfare, setEngine, thud } from "./audio";
 import { useRace, type Phase } from "./store";
 
@@ -426,6 +427,10 @@ export function attachControlsProbe() {
       getSpeed: () => number;
       setKeys: (codes: string[]) => void;
     };
+    __raceSensors?: {
+      getPlayer: () => TrackSensors;
+      getAll: () => Record<CarSim["id"], TrackSensors>;
+    };
   };
   w.__controlsTest = {
     getYaw: () => world.player.yaw,
@@ -438,6 +443,14 @@ export function attachControlsProbe() {
       }
       setKeys(codes);
     },
+  };
+  w.__raceSensors = {
+    getPlayer: () => readTrackSensors(world.player),
+    getAll: () => ({
+      player: readTrackSensors(world.player),
+      max: readTrackSensors(world.max),
+      oscar: readTrackSensors(world.oscar),
+    }),
   };
 }
 

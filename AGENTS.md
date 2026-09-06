@@ -226,6 +226,16 @@ blanks the preview mid-session. Restart it only for `vite.config` / dependency
 changes. Revive, reboot-wipe and the `startup.sh` worked example:
 `.grok/references/hibernate-revive.md`.
 
+### Local-first workflow
+
+- Develop and test changes locally before publishing them.
+- Do not commit, push, merge, open a Pull Request or deploy to GitHub/Vercel
+  unless the user explicitly requests that action.
+- Keep local experiments and uncommitted changes local until the user approves
+  publication.
+- When publication is requested, summarize the exact files and commits that will
+  be sent before performing the GitHub/Vercel action.
+
 ### Parallel work (subagents / multiple agents)
 
 1. **Establish the shared contract first** (routes, main data types, design
