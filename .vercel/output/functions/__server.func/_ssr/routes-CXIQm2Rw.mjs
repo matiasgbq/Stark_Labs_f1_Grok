@@ -3,7 +3,7 @@ import { a as BoxGeometry, c as CylinderGeometry, d as MeshStandardMaterial, f a
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { t as create } from "../_libs/zustand.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-BPlNL6G9.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-CXIQm2Rw.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -157,21 +157,16 @@ var CONTROL = [
 	[200, -245],
 	[225, -175],
 	[210, -115],
-	[175, -85],
+	[195, -85],
 	[210, -45],
 	[250, 10],
 	[270, 90],
 	[255, 165],
 	[195, 205],
 	[125, 210],
-	[60, 180],
-	[15, 135],
-	[-30, 95],
-	[-70, 40],
-	[-85, -25],
-	[-70, -85],
-	[-30, -55],
-	[-8, 10]
+	[60, 200],
+	[15, 165],
+	[0, 120]
 ];
 function catmull(p0, p1, p2, p3, t) {
 	const t2 = t * t;
@@ -379,6 +374,20 @@ function barrierPosts() {
 	}
 	return mats;
 }
+/** Global clearance: an offset from one section can land on another section. */
+function distanceToTrack(x, z) {
+	let best = Infinity;
+	for (let i = 0; i < SAMPLES.length; i++) {
+		const a = SAMPLES[i];
+		const b = SAMPLES[(i + 1) % SAMPLES.length];
+		const dx = b.x - a.x;
+		const dz = b.z - a.z;
+		const lengthSq = dx * dx + dz * dz;
+		const t = lengthSq ? Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / lengthSq)) : 0;
+		best = Math.min(best, Math.hypot(x - a.x - t * dx, z - a.z - t * dz));
+	}
+	return best;
+}
 function scatterOutside(count, minR, maxR, seed = 1) {
 	const pts = [];
 	let r = seed;
@@ -386,17 +395,18 @@ function scatterOutside(count, minR, maxR, seed = 1) {
 		r = r * 16807 % 2147483647;
 		return (r - 1) / 2147483646;
 	};
-	for (let i = 0; i < count; i++) {
+	for (let attempt = 0; pts.length < count && attempt < count * 20; attempt++) {
 		const s = SAMPLES[Math.floor(rand() * SAMPLES.length)];
 		const sign = rand() > .5 ? 1 : -1;
 		const off = minR + rand() * (maxR - minR);
-		pts.push({
+		const p = {
 			x: s.x + s.nx * sign * off,
 			z: s.z + s.nz * sign * off,
 			y: 0,
 			rot: rand() * Math.PI * 2,
 			s: .75 + rand() * .7
-		});
+		};
+		if (distanceToTrack(p.x, p.z) > 10.6) pts.push(p);
 	}
 	return pts;
 }
@@ -1086,6 +1096,7 @@ function F1Car({ livery, car }) {
 	const spin = (0, import_react.useRef)(0);
 	const wheels = (0, import_react.useRef)(null);
 	const colors = LIVERIES[livery];
+	const spawn = car();
 	useFrame((_, dt) => {
 		const c = car();
 		const g = group.current;
@@ -1103,6 +1114,17 @@ function F1Car({ livery, car }) {
 	});
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("group", {
 		ref: group,
+		position: [
+			spawn.x,
+			.02,
+			spawn.z
+		],
+		rotation: [
+			0,
+			spawn.yaw,
+			0
+		],
+		scale: 1.15,
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("mesh", {
 				position: [
@@ -1611,9 +1633,9 @@ function TrackMesh() {
 			geometry: asphalt,
 			receiveShadow: true,
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("meshStandardMaterial", {
-				color: "#2a2d33",
-				roughness: .82,
-				metalness: .08
+				color: "#3a3e46",
+				roughness: .78,
+				metalness: .06
 			})
 		}),
 		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("mesh", {
@@ -1651,6 +1673,7 @@ function TrackMesh() {
 function ChaseCam() {
 	const { camera } = useThree();
 	const fov = (0, import_react.useRef)(62);
+	const primed = (0, import_react.useRef)(false);
 	useFrame((_, dt) => {
 		const w = getWorld();
 		const p = w.player;
@@ -1666,13 +1689,17 @@ function ChaseCam() {
 			_cam.x += (Math.random() - .5) * shake * .7;
 			_cam.y += (Math.random() - .5) * shake * .35;
 		}
-		camera.position.lerp(_cam, 1 - Math.exp(-3.4 * dt));
+		const persp = camera;
+		if (!primed.current) {
+			camera.position.copy(_cam);
+			primed.current = true;
+		} else camera.position.lerp(_cam, 1 - Math.exp(-3.4 * dt));
 		_look.set(p.x, .7, p.z).addScaledVector(_fwd, 6.5);
 		camera.lookAt(_look);
 		const targetFov = 58 + Math.min(16, Math.abs(p.speed) * .22);
 		fov.current += (targetFov - fov.current) * (1 - Math.exp(-3 * dt));
-		camera.fov = fov.current;
-		camera.updateProjectionMatrix();
+		persp.fov = fov.current;
+		persp.updateProjectionMatrix();
 	});
 	return null;
 }
@@ -1800,8 +1827,8 @@ function Game() {
 					far: 420,
 					position: [
 						0,
-						6,
-						16
+						2.8,
+						82
 					]
 				},
 				gl: {
