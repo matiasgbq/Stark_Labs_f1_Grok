@@ -408,6 +408,9 @@ export function stepSim(dt: number) {
     driveAi(world.max, dt, world.player.progress);
     driveAi(world.oscar, dt, world.player.progress);
     driveAi(world.hamilton, dt, world.player.progress);
+    integrate(world.max, dt, world.max.steer ?? 0, world.max.throttle ?? 0, false);
+    integrate(world.oscar, dt, world.oscar.steer ?? 0, world.oscar.throttle ?? 0, false);
+    integrate(world.hamilton, dt, world.hamilton.steer ?? 0, world.hamilton.throttle ?? 0, false);
     separate(world.max, world.oscar);
     separate(world.max, world.hamilton);
     separate(world.oscar, world.hamilton);

@@ -76,6 +76,7 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 | F1-BUG-02 | Bug | P0 | Tú + IA de código, función Frontend | S | F1-BUG-01 | Terminado | En móvil vertical, el joystick no tapa el minimapa ni información importante de la carrera. Confirmado en teléfono real. Evidencia: [captura vertical](screenshots/qa-track/mobile-portrait-joystick-minimap-pause.png). |
 | F1-BUG-03 | Bug | P0 | Tú + IA de código, función Frontend | S | F1-BUG-01 | Terminado | En móvil vertical, el jugador puede identificar y activar la pausa sin teclado ni abandonar la carrera. Confirmado en teléfono real. Evidencia: [captura vertical](screenshots/qa-track/mobile-portrait-joystick-minimap-pause.png). |
 | F1-BUG-04 | Bug | P1 | Tú + IA de código, función Gameplay | M | F1-RIV-01 | Por hacer | Hamilton es considerablemente más lento que Verstappen y Piastri. Idea: explorar un sistema de aprendizaje autónomo usando la telemetría existente (`window.__raceSensors`). Hamilton como piloto experimental para simular aprendizaje de auto autónomo/carreras. |
+| F1-BUG-05 | Bug | P0 | Tú + IA de código, función Gameplay | M | F1-NXT-02 | Por hacer | Los tiempos de los rivales al final de la carrera muestran `world.time` (el tiempo del jugador) en lugar de su propio `finishTime`. Cuando un rival cruza segundo, su tiempo se registra bien, pero los que cruzan después del jugador muestran el tiempo del mundo. Root cause: fase "finish" no actualiza `gateCheck` para rivales. |
 
 ## Investigación y usabilidad
 
