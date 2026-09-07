@@ -397,8 +397,20 @@ function gapMeters(a: CarSim, b: CarSim) {
 }
 
 export function stepSim(dt: number) {
-  if (world.phase === "menu" || world.phase === "paused" || world.phase === "finish") {
+  if (world.phase === "menu" || world.phase === "paused") {
     setEngine(0, 0, false);
+    return;
+  }
+
+  if (world.phase === "finish") {
+    // Keep simulating rivals so they cross the line and get their own finish times
+    world.time += dt;
+    driveAi(world.max, dt, world.player.progress);
+    driveAi(world.oscar, dt, world.player.progress);
+    driveAi(world.hamilton, dt, world.player.progress);
+    separate(world.max, world.oscar);
+    separate(world.max, world.hamilton);
+    separate(world.oscar, world.hamilton);
     return;
   }
 
@@ -442,6 +454,7 @@ export function stepSim(dt: number) {
 
   setEngine(world.player.speed, act.throttle, true);
 
+  // Player finishes → show result screen, but keep simulating rivals for their own finish times
   if (world.player.finished && world.phase === "racing") {
     world.phase = "finish";
     finishFanfare();

@@ -75,6 +75,7 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 | F1-BUG-01 | Bug | P0 | Tú + IA de código, función Frontend/Gameplay | M | F1-MVP-03 | Terminado | En móvil, un joystick circular permite acelerar, frenar y girar con precisión usando un dedo y no se solapa; la cámara y controles de escritorio conservan su comportamiento actual. Aceptado en pruebas local y online. |
 | F1-BUG-02 | Bug | P0 | Tú + IA de código, función Frontend | S | F1-BUG-01 | Terminado | En móvil vertical, el joystick no tapa el minimapa ni información importante de la carrera. Confirmado en teléfono real. Evidencia: [captura vertical](screenshots/qa-track/mobile-portrait-joystick-minimap-pause.png). |
 | F1-BUG-03 | Bug | P0 | Tú + IA de código, función Frontend | S | F1-BUG-01 | Terminado | En móvil vertical, el jugador puede identificar y activar la pausa sin teclado ni abandonar la carrera. Confirmado en teléfono real. Evidencia: [captura vertical](screenshots/qa-track/mobile-portrait-joystick-minimap-pause.png). |
+| F1-BUG-04 | Bug | P1 | Tú + IA de código, función Gameplay | M | F1-RIV-01 | Por hacer | Hamilton es considerablemente más lento que Verstappen y Piastri. Idea: explorar un sistema de aprendizaje autónomo usando la telemetría existente (`window.__raceSensors`). Hamilton como piloto experimental para simular aprendizaje de auto autónomo/carreras. |
 
 ## Investigación y usabilidad
 

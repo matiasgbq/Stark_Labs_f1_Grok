@@ -87,9 +87,9 @@ function Menu({ onStart }: { onStart: () => void }) {
         <h1 className="mt-2 font-display text-[64px] leading-[0.9] tracking-tight text-balance">STARK F1</h1>
         <p className="mt-3 max-w-[42ch] text-pretty text-sm leading-relaxed text-muted">
           You are Franco Colapinto. Three laps around Circuito Costero against
-          Max Verstappen and Oscar Piastri. Stay on the black stuff.
+          Max Verstappen, Oscar Piastri and Lewis Hamilton. Stay on the black stuff.
         </p>
-        <ul className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] uppercase tracking-wider">
+        <ul className="mt-5 grid grid-cols-4 gap-2 text-center text-[11px] uppercase tracking-wider">
           <li className="rounded-[16px] bg-panel px-2 py-3">
             <span className="block font-display text-2xl text-alpine">43</span>
             Colapinto
@@ -101,6 +101,10 @@ function Menu({ onStart }: { onStart: () => void }) {
           <li className="rounded-[16px] bg-panel px-2 py-3">
             <span className="block font-display text-2xl text-papaya">81</span>
             Piastri
+          </li>
+          <li className="rounded-[16px] bg-panel px-2 py-3">
+            <span className="block font-display text-2xl text-ferrari">44</span>
+            Hamilton
           </li>
         </ul>
         <p className="mt-5 text-xs leading-relaxed text-subtle">

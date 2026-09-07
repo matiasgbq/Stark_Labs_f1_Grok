@@ -37,6 +37,14 @@ export const LIVERIES = {
     label: "Oscar Piastri",
     team: "Papaya",
   },
+  ferrari: {
+    body: "#EF1A2D",
+    accent: "#fffef0",
+    dark: "#7a0c0c",
+    number: "44",
+    label: "Lewis Hamilton",
+    team: "Ferrari",
+  },
 } as const;
 
 export type LiveryId = keyof typeof LIVERIES;

@@ -225,6 +225,7 @@ export function World() {
       <F1Car livery="alpine" car={() => getWorld().player} />
       <F1Car livery="navy" car={() => getWorld().max} />
       <F1Car livery="papaya" car={() => getWorld().oscar} />
+      <F1Car livery="ferrari" car={() => getWorld().hamilton} />
       <ChaseCam />
       <SimTicker />
     </>
