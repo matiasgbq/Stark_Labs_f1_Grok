@@ -21,6 +21,7 @@ export function Hud() {
   const phase = useRace((s) => s.phase);
   const lap = useRace((s) => s.lap);
   const time = useRace((s) => s.time);
+  const lastLap = useRace((s) => s.lastLap);
   const bestLap = useRace((s) => s.bestLap);
   const speed = useRace((s) => s.speed);
   const place = useRace((s) => s.place);
@@ -48,6 +49,7 @@ export function Hud() {
             {lap}
             <span className="text-lg text-muted"> / {TOTAL_LAPS}</span>
           </p>
+          <p className="mt-1 text-xs tabular-nums text-muted">Last {fmt(lastLap)}</p>
           <p className="mt-1 text-xs tabular-nums text-muted">Best {fmt(bestLap)}</p>
         </div>
         <div className="rounded-[20px] bg-asphalt/72 px-4 py-3 text-right backdrop-blur-sm">
@@ -71,7 +73,10 @@ export function Hud() {
                 <span className="size-2 rounded-full" style={{ background: r.color }} />
                 <span className="font-medium">P{r.place} {r.name.split(" ").pop()}</span>
               </span>
-              <span className="tabular-nums text-muted">{gapLabel(r.gap)}</span>
+              <div className="flex items-center gap-3 tabular-nums text-muted">
+                <span className="text-[10px]">Lap {Math.min(r.lap + 1, TOTAL_LAPS)}</span>
+                <span>{gapLabel(r.gap)}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -138,6 +143,7 @@ function Minimap() {
       const dots: { x: number; z: number; color: string; yaw?: number; r: number }[] = [
         { x: world.max.x, z: world.max.z, color: "#d32535", r: 3.2 },
         { x: world.oscar.x, z: world.oscar.z, color: "#ff7a1a", r: 3.2 },
+        { x: world.hamilton.x, z: world.hamilton.z, color: "#EF1A2D", r: 3.2 },
         { x: world.player.x, z: world.player.z, color: "#3db4ff", yaw: world.player.yaw, r: 4.4 },
       ];
       for (const d of dots) {

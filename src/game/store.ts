@@ -9,6 +9,10 @@ export type RivalHud = {
   gap: number;
   place: number;
   color: string;
+  lap: number;
+  lastLap: number;
+  bestLap: number;
+  time: number;
 };
 
 export type RaceHud = {

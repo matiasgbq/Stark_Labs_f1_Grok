@@ -18,7 +18,7 @@ import { chirpCountdown, finishFanfare, setEngine, thud } from "./audio";
 import { useRace, type Phase } from "./store";
 
 export type CarSim = {
-  id: "player" | "max" | "oscar";
+  id: "player" | "max" | "oscar" | "hamilton";
   name: string;
   color: string;
   x: number;
@@ -32,6 +32,8 @@ export type CarSim = {
   progress: number;
   hint: number;
   lap: number;
+  stressLap: number;
+  huntMode: boolean;
   nextCp: number;
   finished: boolean;
   finishTime: number;
@@ -53,6 +55,7 @@ type World = {
   player: CarSim;
   max: CarSim;
   oscar: CarSim;
+  hamilton: CarSim;
   trauma: number;
 };
 
@@ -91,6 +94,8 @@ function car(
     cornerBrake: 0.55,
     top: 58,
     aggression: 1,
+    stressLap: 0,
+    huntMode: false,
     ...extras,
   };
 }
@@ -126,6 +131,13 @@ function makeWorld(): World {
       aggression: 1.02,
       status: "CLEAN PACE",
     }),
+    hamilton: car("hamilton", "Lewis Hamilton", "#EF1A2D", 0.004, 0.0, {
+      look: 0.036,
+      cornerBrake: 0.52,
+      top: 60,
+      aggression: 0.4,
+      status: "FERRARI MODE",
+    }),
   };
 }
 
@@ -150,6 +162,7 @@ export function startGrid() {
   world.player.lapStart = 0;
   world.max.lapStart = 0;
   world.oscar.lapStart = 0;
+  world.hamilton.lapStart = 0;
   useRace.getState().patch({ phase: world.phase, countdown: 3 });
 }
 
@@ -261,6 +274,62 @@ function driveAi(c: CarSim, dt: number, playerProg: number) {
     integrate(c, dt, 0, -0.2, false);
     return;
   }
+
+  // Hamilton personality: conservative line, predictive blocking, hunt mode, stress micro-error
+  if (c.id === "hamilton") {
+    const raceLead = wrapPiProg(c.progress - playerProg) + (c.lap - world.player.lap);
+    const behindPlayer = raceLead < 0;
+    const playerClose = raceLead > -0.006; // ~0.5s gap in DRS zone
+    const inDrsZone = c.progress > 0.92 || c.progress < 0.05;
+
+    // Hunt mode: behind in DRS zone → 0.7 aggression + 3% power
+    if (behindPlayer && inDrsZone && !c.huntMode) {
+      c.huntMode = true;
+    } else if (!behindPlayer) {
+      c.huntMode = false;
+    }
+
+    // Stress: player within 0.5s for 2+ laps → 2% micro-error per lap
+    if (raceLead > -0.006 && raceLead < 0) {
+      if (c.lap > 0 && c.lapStart > 0) {
+        c.stressLap = c.lap;
+      }
+    }
+
+    // Build throttle with hunt mode modifier
+    const look = sampleAt((c.progress + c.look) % 1);
+    const dx = look.x - c.x;
+    const dz = look.z - c.z;
+    const desired = Math.atan2(-dx, -dz);
+    const err = wrapPi(desired - c.yaw);
+    const steer = Math.max(-1, Math.min(1, err * 2.4 * c.aggression));
+    const corner = Math.abs(steer);
+    let throttle = 1 - corner * c.cornerBrake;
+
+    // Hunt mode: +3% throttle when behind and in DRS zone
+    if (c.huntMode) {
+      throttle = Math.min(1.03, throttle + 0.12);
+      c.status = "HUNT MODE";
+    } else if (raceLead > 0.18) {
+      throttle *= 0.9;
+      c.status = "FERRARI MODE";
+    } else if (raceLead < -0.12) {
+      throttle = Math.min(1, throttle + 0.12);
+      c.status = "PUSHING";
+    } else {
+      c.status = "FERRARI MODE";
+    }
+
+    if (c.speed < 8) throttle = 1;
+
+    // Micro-error when stressed
+    const stressActive = c.stressLap > 0 && c.lap - c.stressLap >= 2;
+    const microError = stressActive ? (Math.random() < 0.02 ? (Math.random() - 0.5) * 0.3 : 0) : 0;
+
+    integrate(c, dt, steer + microError, throttle, false);
+    return;
+  }
+
   const look = sampleAt((c.progress + c.look) % 1);
   const dx = look.x - c.x;
   const dz = look.z - c.z;
@@ -309,7 +378,7 @@ function separate(a: CarSim, b: CarSim) {
 }
 
 function raceOrder(): CarSim[] {
-  const cars = [world.player, world.max, world.oscar];
+  const cars = [world.player, world.max, world.oscar, world.hamilton];
   cars.sort((a, b) => {
     if (a.finished && b.finished) return a.finishTime - b.finishTime;
     if (a.finished) return -1;
@@ -362,10 +431,14 @@ export function stepSim(dt: number) {
 
   driveAi(world.max, dt, world.player.progress);
   driveAi(world.oscar, dt, world.player.progress);
+  driveAi(world.hamilton, dt, world.player.progress);
 
   separate(world.player, world.max);
   separate(world.player, world.oscar);
+  separate(world.player, world.hamilton);
   separate(world.max, world.oscar);
+  separate(world.max, world.hamilton);
+  separate(world.oscar, world.hamilton);
 
   setEngine(world.player.speed, act.throttle, true);
 
@@ -403,6 +476,10 @@ function pushHud(force: boolean) {
       gap: gapMeters(world.player, c),
       place: order.findIndex((o) => o.id === c.id) + 1,
       color: c.color,
+      lap: c.lap,
+      lastLap: c.lastLap,
+      bestLap: c.bestLap,
+      time: world.time,
     }));
   useRace.getState().patch({
     phase: world.phase,
@@ -450,6 +527,7 @@ export function attachControlsProbe() {
       player: readTrackSensors(world.player),
       max: readTrackSensors(world.max),
       oscar: readTrackSensors(world.oscar),
+      hamilton: readTrackSensors(world.hamilton),
     }),
   };
 }

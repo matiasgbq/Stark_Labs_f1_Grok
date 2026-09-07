@@ -1,0 +1,43 @@
+{
+  "smoke": [
+    {
+      "label": "dev-desktop",
+      "overflow": false,
+      "canvas": 1
+    },
+    {
+      "label": "dev-mobile",
+      "overflow": false,
+      "canvas": 1
+    },
+    {
+      "label": "built-desktop",
+      "overflow": false,
+      "canvas": 1
+    },
+    {
+      "label": "built-mobile",
+      "overflow": false,
+      "canvas": 1
+    }
+  ],
+  "errors": [],
+  "controls": {
+    "speed": 20.615829628841198,
+    "left": 0.5324111169941707,
+    "right": -0.5406161813164478
+  },
+  "drive": {
+    "covered": 1.0220608131445297,
+    "previous": 0.022060813144529748,
+    "maxLateral": 2.2,
+    "done": true,
+    "samples": [],
+    "error": null,
+    "seconds": 63.56666666666434,
+    "rivals": [
+      "max",
+      "oscar"
+    ]
+  }
+}

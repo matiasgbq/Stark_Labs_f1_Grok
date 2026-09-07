@@ -22,12 +22,13 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 
 ## Sprint actual
 
-- **Estado:** Planificado; ejecución pendiente de autorización.
+- **Estado:** Cerrado — 2026-09-06.
 - **Objetivo:** Completar la cadena de vueltas, tiempos y rivales con Hamilton como tercer piloto.
 - **Alcance:** F1-NXT-01 → F1-NXT-02 → F1-NXT-03 → F1-RIV-01, en ese orden. No se reprioriza el resto del backlog.
 - **Capacidad:** Matías con una IA ejecutora, funciones Gameplay/Frontend/QA; un frente activo y tres cortes de revisión. Fechas y duración por confirmar.
 - **Fuera de alcance:** F1-TECH-02 (Vercel), F1-FUT-05 (horizontal), F1-UX-02 (latencia móvil), nuevos rivales distintos a Hamilton, física de neumáticos, DRS activo.
 - **Criterio de salida:** 3 vueltas completas con tiempos coherentes en HUD, clasificación en tiempo real con Hamilton (Ferrari #44), y sin regresiones en desktop/móvil vertical.
+- **Resultado:** ✅ Completado — 4/4 items terminados, build OK, deploy OK.
 
 ### Instrucciones de ejecución — Sprint vueltas y rivales
 
@@ -100,9 +101,9 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 
 | ID | Tipo | Prioridad | Responsable | Tamaño | Dependencias | Estado | Criterios de aceptación |
 |---|---|---|---|---|---|---|---|
-| F1-NXT-01 | Historia | P0 | Gameplay | M | F1-MVP-04, F1-MVP-07 | Por hacer | Cada paso por meta incrementa una vuelta; se muestran última vuelta, mejor vuelta y tiempo total coherentes. |
-| F1-NXT-02 | Tarea técnica | P0 | Gameplay | M | F1-NXT-01 | Por hacer | El estado separa fase, progreso, vueltas, tiempos y clasificación; admite más vueltas sin reescribir el flujo principal. |
-| F1-NXT-03 | Historia | P1 | Gameplay | M | F1-NXT-02 | Por hacer | Rivales con progreso, posición, diferencia y comportamiento reproducibles; datos coherentes en HUD y resultado. |
+| F1-NXT-01 | Historia | P0 | Gameplay | M | F1-MVP-04, F1-MVP-07 | Terminado | Cada paso por meta incrementa una vuelta; se muestran última vuelta, mejor vuelta y tiempo total coherentes. |
+| F1-NXT-02 | Tarea técnica | P0 | Gameplay | M | F1-NXT-01 | Terminado | El estado separa fase, progreso, vueltas, tiempos y clasificación; admite más vueltas sin reescribir el flujo principal. |
+| F1-NXT-03 | Historia | P1 | Gameplay | M | F1-NXT-02 | Terminado | Rivales con progreso, posición, diferencia y comportamiento reproducibles; datos coherentes en HUD y resultado. |
 | F1-NXT-04 | Historia | P1 | Frontend + Gameplay | S | F1-NXT-01 | Por hacer | Pausa detiene simulación y audio; resultado muestra clasificación, tiempos y acciones para repetir o volver. |
 | F1-NXT-05 | Tarea técnica | P1 | QA | S | F1-MVP-03, F1-NXT-01 | Por hacer | Matriz de teclado, táctil, foco, pausa, reinicio, límites y tres vueltas en desktop y móvil. |
 
@@ -110,7 +111,7 @@ Entregar una experiencia inicial clara, controles confiables y una lectura inmed
 
 | ID | Tipo | Prioridad | Responsable | Tamaño | Dependencias | Estado | Criterios de aceptación |
 |---|---|---|---|---|---|---|---|
-| F1-RIV-01 | Historia | P0 | Gameplay | M | F1-NXT-03 | Por hacer | Hamilton (Ferrari #44) como tercer rival con personalidad propia: conducción conservadora y precisa (95% trazada ideal), agresividad base 0.4, lógica de bloqueo predictivo (cubre interior 1s antes ante sobrepaso), multiplicador de estrés (2% microerror si jugador a <0.5s por 2+ vueltas), modo "caza" con agresividad 0.7 y +3% potencia cuando está detrás en zona DRS. Tiempos base: Verstappen 1:15.000, Hamilton 1:15.300, Piastri 1:15.700. Consistencia: variación Hamilton +/-0.050s (máquina), Piastri +/-0.200s. Datos JSON: `hud="HAM"`, `team="Ferrari"`, `number=44`, `color_ui="#EF1A2D"`. |
+| F1-RIV-01 | Historia | P0 | Gameplay | M | F1-NXT-03 | Terminado | Hamilton (Ferrari #44) como tercer rival con personalidad propia: conducción conservadora y precisa (95% trazada ideal), agresividad base 0.4, lógica de bloqueo predictivo (cubre interior 1s antes ante sobrepaso), multiplicador de estrés (2% microerror si jugador a <0.5s por 2+ vueltas), modo "caza" con agresividad 0.7 y +3% potencia cuando está detrás en zona DRS. Tiempos base: Verstappen 1:15.000, Hamilton 1:15.300, Piastri 1:15.700. Consistencia: variación Hamilton +/-0.050s (máquina), Piastri +/-0.200s. Datos JSON: `hud="HAM"`, `team="Ferrari"`, `number=44`, `color_ui="#EF1A2D"`. |
 
 ## Futuro
 
